@@ -6,9 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "vue-tsc -b"
   },
   "dependencies": {
+    "@lucide/vue": "^1.69.0",
     "@mdi/font": "^7.4.47",
     "@vue-leaflet/vue-leaflet": "^0.10.1",
     "@vueuse/core": "^15.0.0",
@@ -23,8 +27,9 @@
   "devDependencies": {
     "@types/node": "^24.19.2",
     "@vitejs/plugin-vue": "^6.0.10",
-    "@vue/test-utils": "^2.5.1",
+    "@vue/test-utils": "^2.4.11",
     "@vue/tsconfig": "^0.9.1",
+    "jsdom": "^31.0.1",
     "sass": "^1.108.2",
     "typescript": "~6.0.3",
     "vite": "^8.3.6",

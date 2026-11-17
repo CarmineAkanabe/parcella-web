@@ -1,0 +1,121 @@
+@use './tokens.scss' as *;
+
+// ============================================================================
+// Parcella — Base Styles & Warm Industrial Logistics Utilities
+// ============================================================================
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.v-application {
+  font-family: var(--font-sans) !important;
+  background-color: rgb(var(--v-theme-background));
+}
+
+// Monospace & Tabular Numeric Utility (Tracking IDs, XAF Fees, Coordinates, Timestamps)
+.font-mono,
+code,
+pre,
+kbd {
+  font-family: var(--font-mono) !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+// Editorial Industrial Card Surface
+.parcella-card {
+  background-color: rgb(var(--v-theme-surface-bright));
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition:
+    transform var(--transition-base),
+    box-shadow var(--transition-base),
+    border-color var(--transition-base);
+
+  &--interactive {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-elevated);
+      border-color: rgba(var(--v-theme-primary), 0.38);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Accessible Focus Ring
+:focus-visible {
+  outline: 2px solid rgb(var(--v-theme-primary));
+  outline-offset: 2px;
+}
+
+// Tactile Button Press Feedback
+.v-btn {
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+  text-transform: none;
+  transition:
+    transform var(--transition-fast),
+    background-color var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  &:not(:disabled):active {
+    transform: translateY(1px) scale(0.99);
+  }
+}
+
+// Route Transition Helpers
+.route-fade-enter-active,
+.route-fade-leave-active {
+  transition:
+    opacity 180ms var(--ease-out-expo),
+    transform 180ms var(--ease-out-expo);
+}
+
+.route-fade-enter-from {
+  opacity: 0;
+  transform: translateY(4px);
+}
+
+.route-fade-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .route-fade-enter-from,
+  .route-fade-leave-to {
+    transform: none;
+  }
+}
