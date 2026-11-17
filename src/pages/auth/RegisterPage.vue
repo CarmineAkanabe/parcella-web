@@ -1,82 +1,391 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { Role } from '@/shared/types'
-import { AppCard, StatusPill } from '@/components/common'
+import { nextTick, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { AppCard, ErrorBanner } from '@/components/common'
+import LocationPicker from '@/components/complex/map/LocationPicker.vue'
+import { registerSchema, registerStep1Schema, type RegisterRole } from '@/features/auth'
+import { ApiError } from '@/shared/api'
+import { useFormErrors } from '@/shared/composables/useFormErrors'
+import { useToast } from '@/shared/composables/useToast'
+import { useAuthStore } from '@/shared/stores/auth'
+import type { Location } from '@/shared/types'
 
+const router = useRouter()
+const authStore = useAuthStore()
+const toast = useToast()
+
+const step = ref<1 | 2>(1)
+const role = ref<RegisterRole>('CUSTOMER')
 const fullName = ref('')
 const email = ref('')
+const password = ref('')
+const showPassword = ref(false)
 const paymentPhoneNumber = ref('237')
-const role = ref<Role>('CUSTOMER')
+const preferredContactNumber = ref('237')
+const syncContactPhone = ref(true)
+const registeredLocation = ref<Location | null>(null)
+const isSubmitting = ref(false)
+
+const locationPickerRef = ref<InstanceType<typeof LocationPicker> | null>(null)
+
+const {
+  errors,
+  formError,
+  validate: validateFull,
+  setServerErrors,
+  firstError,
+  firstErrorForPrefix,
+  clearField,
+  clearPrefix,
+} = useFormErrors(registerSchema)
+
+const step1Validator = useFormErrors(registerStep1Schema)
+
+const ROLE_OPTIONS: Array<{ value: RegisterRole; badge?: string; title: string; subtitle: string }> = [
+  {
+    value: 'CUSTOMER',
+    badge: 'Sender / Buyer',
+    title: 'Customer',
+    subtitle: 'Send & receive packages with escrow payment security.',
+  },
+  {
+    value: 'DRIVER',
+    title: 'Courier / Driver',
+    subtitle: 'Deliver packages & earn verified daily payouts.',
+  },
+]
+
+watch(paymentPhoneNumber, (val) => {
+  if (syncContactPhone.value) preferredContactNumber.value = val
+})
+
+watch(syncContactPhone, (enabled) => {
+  if (enabled) {
+    preferredContactNumber.value = paymentPhoneNumber.value
+    clearField('preferredContactNumber')
+  }
+})
+
+function getStep1Payload() {
+  return {
+    role: role.value,
+    fullName: fullName.value.trim(),
+    email: email.value.trim().toLowerCase(),
+    password: password.value,
+    paymentPhoneNumber: paymentPhoneNumber.value.trim(),
+    preferredContactNumber: (syncContactPhone.value ? paymentPhoneNumber.value : preferredContactNumber.value).trim(),
+  }
+}
+
+async function handleNextStep(): Promise<void> {
+  const step1Data = getStep1Payload()
+  if (!step1Validator.validate(step1Data)) {
+    errors.value = { ...step1Validator.errors.value }
+    return
+  }
+  step.value = 2
+  await nextTick()
+  locationPickerRef.value?.invalidateSize()
+}
+
+function handleLocationUpdate(loc: Location): void {
+  registeredLocation.value = loc
+  clearPrefix('registeredLocation')
+}
+
+async function handleSubmit(): Promise<void> {
+  const payload = { ...getStep1Payload(), registeredLocation: registeredLocation.value }
+
+  if (!validateFull(payload) || !registeredLocation.value) {
+    if (!registeredLocation.value) {
+      errors.value = {
+        ...errors.value,
+        'registeredLocation.address': ['Click the map or search an address to pin your default location'],
+      }
+    }
+    return
+  }
+
+  isSubmitting.value = true
+  try {
+    await authStore.register({ ...getStep1Payload(), registeredLocation: registeredLocation.value })
+    try {
+      const loginResult = await authStore.login({ email: payload.email, password: payload.password })
+      toast.success(`Account created! Welcome to Parcella, ${loginResult.user.fullName}.`)
+      await router.push(authStore.homeRoute)
+    } catch {
+      toast.success('Account created! Please sign in with your credentials.')
+      await router.push({ name: 'login', query: { email: payload.email } })
+    }
+  } catch (err: unknown) {
+    setServerErrors(err)
+    const step1Keys = ['role', 'fullName', 'email', 'password', 'paymentPhoneNumber', 'preferredContactNumber']
+    if (step1Keys.some((k) => Boolean(firstError(k))) || (err instanceof ApiError && err.status === 409)) {
+      step.value = 1
+    }
+  } finally {
+    isSubmitting.value = false
+  }
+}
 </script>
 
 <template>
-  <AppCard
-    eyebrow="ONBOARDING // NEW IDENTITY"
-    title="Create Parcella Account"
-    subtitle="Register as a Customer shipper or apply as a verified Fleet Driver."
-  >
-    <template #actions>
-      <StatusPill status="PENDING" size="x-small" />
-    </template>
+  <AppCard class="fill-height d-flex flex-column justify-space-between pa-2 pa-sm-4" :loading="isSubmitting">
+    <div>
+      <!-- Top Auth Switcher Tabs + Step Pill (Matches Stitch Screen 1) -->
+      <div class="d-flex flex-wrap align-center justify-space-between ga-2 pb-4 mb-4 auth-tabs-bar">
+        <div class="d-flex align-center ga-6">
+          <span class="auth-tab auth-tab--active text-subtitle-1 font-weight-bold">
+            Create an Account
+          </span>
+          <RouterLink to="/login" class="auth-tab text-subtitle-1 font-weight-semibold text-decoration-none">
+            Sign In
+          </RouterLink>
+        </div>
 
-    <v-form @submit.prevent>
-      <div class="d-flex flex-column ga-3">
-        <v-select
-          v-model="role"
-          label="Account Role"
-          :items="[
-            { title: 'Customer — Send & Receive Parcels', value: 'CUSTOMER' },
-            { title: 'Driver — Courier & Fleet Operator', value: 'DRIVER' },
-          ]"
-          prepend-inner-icon="mdi-badge-account-outline"
-        />
-        <v-text-field
-          v-model="fullName"
-          label="Full Legal Name"
-          placeholder="Jean-Paul Mbarga"
-          prepend-inner-icon="mdi-account-outline"
-        />
-        <v-text-field
-          v-model="email"
-          label="Email Address"
-          type="email"
-          placeholder="jp.mbarga@parcella.cm"
-          prepend-inner-icon="mdi-email-outline"
-        />
-        <v-text-field
-          v-model="paymentPhoneNumber"
-          label="Mobile Money Number (237XXXXXXXXX)"
-          placeholder="237670000000"
-          prepend-inner-icon="mdi-cellphone-check"
-          class="font-mono"
-        />
-
-        <v-btn
-          type="submit"
-          color="primary"
-          variant="flat"
-          size="large"
-          block
-          class="mt-2 font-weight-bold"
-        >
-          Register Identity
-        </v-btn>
+        <v-chip size="small" variant="outlined" class="font-mono text-caption" @click="step = 1">
+          {{ step === 1 ? 'Step 1 of 2: Account Details' : 'Step 2 of 2: Default Hub' }}
+        </v-chip>
       </div>
-    </v-form>
 
-    <template #footer>
-      <div class="d-flex align-center justify-space-between text-body-2">
-        <span class="text-medium-emphasis">Already registered?</span>
-        <v-btn
-          variant="text"
-          color="primary"
-          size="small"
-          to="/login"
-          class="font-weight-bold"
-        >
-          Sign In
-        </v-btn>
+      <!-- 2-Step Progress Bar -->
+      <v-progress-linear
+        :model-value="step === 1 ? 50 : 100"
+        color="primary"
+        height="4"
+        rounded
+        class="mb-5"
+      />
+
+      <ErrorBanner
+        v-if="formError"
+        title="Registration could not be completed"
+        :detail="formError"
+        :retryable="false"
+        class="mb-4"
+      />
+
+      <!-- STEP 1: Role, Identity, and Mobile Money Numbers -->
+      <v-form v-if="step === 1" novalidate @submit.prevent="handleNextStep">
+        <div class="d-flex flex-column ga-4">
+          <div>
+            <label class="field-label">Select Your Platform Role</label>
+            <div class="role-grid">
+              <button
+                v-for="opt in ROLE_OPTIONS"
+                :key="opt.value"
+                type="button"
+                class="role-option text-left pa-3"
+                :class="{ 'role-option--active': role === opt.value }"
+                @click="role = opt.value"
+              >
+                <div class="d-flex align-center ga-2 mb-1">
+                  <v-icon
+                    :icon="role === opt.value ? 'mdi-radiobox-marked' : 'mdi-radiobox-blank'"
+                    :color="role === opt.value ? 'primary' : 'secondary'"
+                    size="18"
+                  />
+                  <span class="text-body-2 font-weight-bold">{{ opt.title }}</span>
+                  <v-chip v-if="opt.badge" size="x-small" color="success" variant="tonal" class="font-mono">
+                    {{ opt.badge }}
+                  </v-chip>
+                </div>
+                <div class="text-caption text-medium-emphasis pl-6">{{ opt.subtitle }}</div>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2-Column Row for Full Name + Email Address (Matches Stitch) -->
+          <v-row dense>
+            <v-col cols="12" sm="6">
+              <label class="field-label">Full Legal Name</label>
+              <v-text-field
+                v-model="fullName"
+                placeholder="Marcelle Manga"
+                prepend-inner-icon="mdi-account-outline"
+                autocomplete="name"
+                :error="Boolean(firstError('fullName'))"
+                :error-messages="firstError('fullName')"
+                @update:model-value="clearField('fullName')"
+              />
+            </v-col>
+            <v-col cols="12" sm="6">
+              <label class="field-label">Email Address</label>
+              <v-text-field
+                v-model="email"
+                type="email"
+                placeholder="marcelle@example.cm"
+                prepend-inner-icon="mdi-email-outline"
+                autocomplete="email"
+                :error="Boolean(firstError('email'))"
+                :error-messages="firstError('email')"
+                @update:model-value="clearField('email')"
+              />
+            </v-col>
+          </v-row>
+
+          <div>
+            <div class="d-flex align-center justify-space-between mb-1">
+              <label class="field-label mb-0">Phone / Mobile Money Number</label>
+              <span class="text-caption font-mono text-success font-weight-semibold">
+                ● Cameroon (+237)
+              </span>
+            </div>
+            <v-text-field
+              v-model="paymentPhoneNumber"
+              placeholder="237677894210"
+              prepend-inner-icon="mdi-cellphone-check"
+              class="font-mono"
+              :error="Boolean(firstError('paymentPhoneNumber'))"
+              :error-messages="firstError('paymentPhoneNumber')"
+              @update:model-value="clearField('paymentPhoneNumber')"
+            />
+            <span class="text-caption text-medium-emphasis d-block mt-1">
+              Used for instant mobile money escrow releases &amp; courier coordination.
+            </span>
+          </div>
+
+          <v-checkbox
+            v-model="syncContactPhone"
+            label="Use this phone number to receive 6-digit SMS delivery handshake codes."
+          />
+
+          <div v-if="!syncContactPhone">
+            <label class="field-label">Preferred Contact Number</label>
+            <v-text-field
+              v-model="preferredContactNumber"
+              placeholder="237699123456"
+              prepend-inner-icon="mdi-phone-outline"
+              class="font-mono"
+              :error="Boolean(firstError('preferredContactNumber'))"
+              :error-messages="firstError('preferredContactNumber')"
+              @update:model-value="clearField('preferredContactNumber')"
+            />
+          </div>
+
+          <div>
+            <label class="field-label">Password</label>
+            <v-text-field
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="8 to 72 characters"
+              prepend-inner-icon="mdi-key-outline"
+              :append-inner-icon="showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              autocomplete="new-password"
+              :error="Boolean(firstError('password'))"
+              :error-messages="firstError('password')"
+              @click:append-inner="showPassword = !showPassword"
+              @update:model-value="clearField('password')"
+            />
+          </div>
+
+          <!-- Step 2 Preview Box (Matches Stitch Step 2 Preview Container) -->
+          <v-sheet rounded="lg" class="step2-preview-box pa-3 d-flex align-center justify-space-between ga-3">
+            <div class="d-flex align-center ga-2">
+              <v-icon icon="mdi-map-marker-radius-outline" color="primary" size="20" />
+              <div>
+                <div class="text-caption font-weight-bold">Next Step: Default Hub / Landmark</div>
+                <div class="text-caption text-medium-emphasis">
+                  Pin your Douala or Yaoundé neighborhood on the interactive map
+                </div>
+              </div>
+            </div>
+            <span class="font-mono text-caption text-medium-emphasis d-none d-sm-inline">Step 2/2</span>
+          </v-sheet>
+
+          <v-btn type="submit" color="primary" variant="flat" size="large" block append-icon="mdi-arrow-right" class="font-weight-bold">
+            Continue to Default Location
+          </v-btn>
+        </div>
+      </v-form>
+
+      <!-- STEP 2: LocationPicker on Map -->
+      <v-form v-else novalidate @submit.prevent="handleSubmit">
+        <div class="d-flex flex-column ga-4">
+          <LocationPicker
+            ref="locationPickerRef"
+            :model-value="registeredLocation"
+            label="Default Dispatch Hub &amp; Landmark"
+            :disabled="isSubmitting"
+            :error-message="firstErrorForPrefix('registeredLocation')"
+            @update:model-value="handleLocationUpdate"
+          />
+
+          <div class="d-flex align-center ga-3 pt-2">
+            <v-btn variant="tonal" color="secondary" size="large" prepend-icon="mdi-arrow-left" :disabled="isSubmitting" @click="step = 1">
+              Back
+            </v-btn>
+            <v-btn type="submit" color="primary" variant="flat" size="large" append-icon="mdi-arrow-right" :loading="isSubmitting" :disabled="isSubmitting" class="flex-grow-1 font-weight-bold">
+              Create Protected Account
+            </v-btn>
+          </div>
+        </div>
+      </v-form>
+    </div>
+
+    <div class="pt-5 mt-5 auth-footer-bar text-center">
+      <p class="text-caption text-medium-emphasis mb-2">
+        By continuing, you agree to Parcella's Escrow Service Terms &amp; Carrier Protocols.
+      </p>
+      <div class="text-body-2">
+        <span class="text-medium-emphasis">Already have an active account? </span>
+        <RouterLink to="/login" class="text-primary font-weight-bold text-decoration-none">
+          Sign In to Dashboard
+        </RouterLink>
       </div>
-    </template>
+    </div>
   </AppCard>
 </template>
+
+<style scoped>
+.auth-tabs-bar {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.auth-tab {
+  position: relative;
+  color: rgb(var(--v-theme-on-surface-variant));
+  padding-bottom: 12px;
+  margin-bottom: -17px;
+}
+
+.auth-tab--active {
+  color: rgb(var(--v-theme-primary));
+  border-bottom: 2px solid rgb(var(--v-theme-primary));
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+@media (max-width: 560px) {
+  .role-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.role-option {
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-subtle);
+  background-color: rgb(var(--v-theme-surface));
+  color: rgb(var(--v-theme-on-surface));
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.role-option--active {
+  border-color: rgb(var(--v-theme-primary));
+  background-color: rgba(var(--v-theme-primary), 0.05);
+}
+
+.step2-preview-box {
+  background-color: rgba(var(--v-theme-surface-variant), 0.6);
+  border: 1px solid var(--border-subtle);
+}
+
+.auth-footer-bar {
+  border-top: 1px solid var(--border-subtle);
+}
+</style>

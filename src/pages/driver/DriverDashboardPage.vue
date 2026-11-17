@@ -6,7 +6,7 @@ import { PageHeader, AppCard, StatusPill, EmptyState } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="DRIVER CONSOLE // FLEET TELEMETRY"
+      eyebrow="Driver Workspace"
       title="Courier Dispatch Hub"
       subtitle="Manage availability status, incoming proximity requests, and XAF escrow earnings."
     >

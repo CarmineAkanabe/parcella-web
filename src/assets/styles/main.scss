@@ -65,6 +65,17 @@ kbd {
   }
 }
 
+// Static Top-Above-Input Field Label (Matches Stitch Form Typography)
+.field-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: 0.01em;
+  color: rgb(var(--v-theme-on-surface-variant));
+  margin-bottom: 6px;
+}
+
 // Accessible Focus Ring
 :focus-visible {
   outline: 2px solid rgb(var(--v-theme-primary));

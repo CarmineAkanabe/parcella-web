@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="DIRECTORY // OPERATOR ACCOUNTS"
+      eyebrow="Account Directory"
       title="Platform Users Directory"
       subtitle="Search and audit registered customers, couriers, and administrators."
     >

@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="ESCROW ADJUDICATION // ARBITRATION"
+      eyebrow="Escrow Adjudication"
       title="Escrow Disputes Resolution"
       subtitle="Review disputed deliveries and issue binding rulings to release funds to the driver or refund the customer."
     >

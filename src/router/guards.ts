@@ -1,7 +1,21 @@
 import type { Router } from 'vue-router'
+import { setUnauthorizedHandler } from '@/shared/api'
 import { useAuthStore } from '@/shared/stores/auth'
 
 export function setupRouterGuards(router: Router): void {
+  setUnauthorizedHandler((redirectPath: string) => {
+    const authStore = useAuthStore()
+    authStore.clearSession()
+
+    const currentPath = router.currentRoute.value.path
+    if (!currentPath.startsWith('/login') && !currentPath.startsWith('/register')) {
+      void router.push({
+        name: 'login',
+        query: redirectPath && redirectPath !== '/' ? { redirect: redirectPath } : undefined,
+      })
+    }
+  })
+
   router.beforeEach(async (to) => {
     const authStore = useAuthStore()
 

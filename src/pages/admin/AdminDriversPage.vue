@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="COMPLIANCE // FLEET ONBOARDING"
+      eyebrow="Fleet Onboarding"
       title="Driver Verification Queue"
       subtitle="Inspect uploaded national IDs and driver licenses to approve or reject courier applicants."
     >

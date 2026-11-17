@@ -182,7 +182,7 @@ const meta = computed<StatusMeta>(() => {
     variant="tonal"
     :color="meta.color"
     :size="size"
-    class="status-pill font-mono font-weight-medium"
+    class="status-pill font-weight-semibold"
   >
     <v-icon start :icon="meta.icon" size="14" />
     <span>{{ meta.label }}</span>

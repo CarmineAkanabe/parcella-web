@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="COURIER MANIFEST // CUSTODY"
+      eyebrow="Courier Manifest"
       title="My Assigned Deliveries"
       subtitle="Verify 6-digit pickup and delivery codes to advance waybills and release XAF escrow."
     >

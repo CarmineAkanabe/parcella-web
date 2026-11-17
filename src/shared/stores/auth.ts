@@ -1,6 +1,16 @@
 import { defineStore } from 'pinia'
-import { apiClient, TOKEN_STORAGE_KEY } from '../api'
+import { TOKEN_STORAGE_KEY } from '../api'
 import type { Role, UserResponse } from '../types'
+import {
+  getMeApi,
+  loginApi,
+  registerApi,
+  updateMeApi,
+  type LoginPayload,
+  type LoginResponse,
+  type RegisterPayload,
+  type UpdateProfilePayload,
+} from '@/features/auth'
 
 function readStoredToken(): string | null {
   if (typeof localStorage === 'undefined') return null
@@ -60,6 +70,52 @@ export const useAuthStore = defineStore('auth', {
       this.clearSession()
     },
 
+    async login(payload: LoginPayload): Promise<LoginResponse> {
+      this.isLoading = true
+      try {
+        const result = await loginApi({
+          email: payload.email.trim().toLowerCase(),
+          password: payload.password,
+        })
+        this.setSession(result.accessToken, result.user)
+        return result
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async register(payload: RegisterPayload): Promise<UserResponse> {
+      this.isLoading = true
+      try {
+        const normalized: RegisterPayload = {
+          ...payload,
+          fullName: payload.fullName.trim(),
+          email: payload.email.trim().toLowerCase(),
+          paymentPhoneNumber: payload.paymentPhoneNumber.trim(),
+          preferredContactNumber: payload.preferredContactNumber.trim(),
+          registeredLocation: {
+            lat: payload.registeredLocation.lat,
+            lng: payload.registeredLocation.lng,
+            address: payload.registeredLocation.address.trim(),
+          },
+        }
+        return await registerApi(normalized)
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async updateProfile(payload: UpdateProfilePayload): Promise<UserResponse> {
+      this.isLoading = true
+      try {
+        const updated = await updateMeApi(payload)
+        this.user = updated
+        return updated
+      } finally {
+        this.isLoading = false
+      }
+    },
+
     async hydrate(): Promise<void> {
       const storedToken = this.token ?? readStoredToken()
       if (!storedToken) {
@@ -72,8 +128,8 @@ export const useAuthStore = defineStore('auth', {
       this.token = storedToken
       this.isLoading = true
       try {
-        const response = await apiClient.get<UserResponse>('/me', { auth: 'user' })
-        this.user = response.data
+        const user = await getMeApi()
+        this.user = user
       } catch {
         this.clearSession()
       } finally {

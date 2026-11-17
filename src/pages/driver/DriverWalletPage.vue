@@ -6,7 +6,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="ESCROW SETTLEMENT // LEDGER"
+      eyebrow="Escrow Settlement"
       title="Driver Escrow Wallet"
       subtitle="Audit released delivery earnings and initiate Mobile Money XAF withdrawals."
     >

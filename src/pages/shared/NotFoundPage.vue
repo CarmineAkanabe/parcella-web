@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/shared/stores/auth'
-import { AppCard, StatusPill } from '@/components/common'
+import { AppCard } from '@/components/common'
 
 const route = useRoute()
 const authStore = useAuthStore()
@@ -12,43 +12,29 @@ const destinationRoute = computed(() =>
   authStore.isAuthenticated ? authStore.homeRoute : '/login',
 )
 const destinationLabel = computed(() =>
-  authStore.isAuthenticated ? 'Return to Workspace' : 'Return to Operator Sign In',
+  authStore.isAuthenticated ? 'Return to Dashboard' : 'Go to Sign In',
 )
 </script>
 
 <template>
   <AppCard
-    eyebrow="404 // ROUTE NOT FOUND"
-    title="Requested waypoint outside dispatch perimeter"
-    subtitle="The URL path you entered does not resolve to an active Parcella logistics module."
+    eyebrow="404 · Page Not Found"
+    title="We couldn't find that page"
+    subtitle="The address you entered doesn't match an active page in Parcella."
   >
-    <template #actions>
-      <StatusPill status="FAILED" size="small" />
-    </template>
-
     <v-sheet
       rounded="lg"
-      class="pa-4 mb-6 not-found-telemetry font-mono text-caption d-flex flex-column ga-2"
+      class="pa-4 mb-5 not-found-box text-body-2 d-flex align-center justify-space-between ga-3"
     >
-      <div class="d-flex justify-space-between">
-        <span class="text-medium-emphasis">REQUESTED_PATH</span>
-        <span class="font-weight-bold text-primary">{{ requestedPath }}</span>
-      </div>
-      <div class="d-flex justify-space-between">
-        <span class="text-medium-emphasis">GRID_REFERENCE</span>
-        <span>04.0511° N // 09.7679° E</span>
-      </div>
-      <div class="d-flex justify-space-between">
-        <span class="text-medium-emphasis">DISPATCH_STATUS</span>
-        <span>UNROUTABLE_COORDINATE</span>
-      </div>
+      <span class="text-medium-emphasis">Requested URL</span>
+      <span class="font-mono font-weight-semibold text-primary text-truncate">{{ requestedPath }}</span>
     </v-sheet>
 
     <div class="d-flex flex-wrap align-center ga-3">
       <v-btn
         color="primary"
         variant="flat"
-        prepend-icon="mdi-compass-outline"
+        prepend-icon="mdi-home-outline"
         :to="destinationRoute"
       >
         {{ destinationLabel }}
@@ -66,7 +52,7 @@ const destinationLabel = computed(() =>
 </template>
 
 <style scoped>
-.not-found-telemetry {
+.not-found-box {
   background-color: rgb(var(--v-theme-background));
   border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
 }

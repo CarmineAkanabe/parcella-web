@@ -6,7 +6,7 @@ import { PageHeader, AppCard, StatusPill, EmptyState } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="ADMINISTRATION // NETWORK GOVERNANCE"
+      eyebrow="Network Governance"
       title="Platform Operations Overview"
       subtitle="Monitor fleet verification queues, active escrow volume, and dispute adjudications."
     >

@@ -104,16 +104,16 @@ export const ROLE_NAV_ITEMS: Record<Role, NavItem[]> = {
 
 export const SECONDARY_NAV_ITEMS: NavItem[] = [
   {
+    title: 'Profile & Settings',
+    to: '/profile',
+    routeName: 'profile',
+    icon: 'mdi-account-cog-outline',
+  },
+  {
     title: 'Notifications',
     to: '/notifications',
     routeName: 'notifications',
     icon: 'mdi-bell-outline',
-  },
-  {
-    title: 'Profile',
-    to: '/profile',
-    routeName: 'profile',
-    icon: 'mdi-account-circle-outline',
   },
 ]
 

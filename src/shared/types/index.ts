@@ -52,7 +52,7 @@ export interface DriverSummary {
 }
 
 export interface UserResponse {
-  id: number
+  id: string
   role: Role
   fullName: string
   email: string
@@ -60,11 +60,11 @@ export interface UserResponse {
   preferredContactNumber: string
   registeredLocation: Location | null
   createdAt: string
-  driver?: DriverSummary
+  driver: DriverSummary | null
 }
 
 export interface Vehicle {
-  id: number
+  id: string
   type: VehicleType
   plateNumber: string
   maxPackageSize: PackageSize
@@ -72,19 +72,19 @@ export interface Vehicle {
 }
 
 export interface DeliveryParticipant {
-  id: number
+  id: string
   fullName: string
 }
 
 export interface DeliveryDriverSummary {
-  id: number
+  id: string
   fullName: string
   averageRating: number
   trustScore: number
 }
 
 export interface DeliveryResponse {
-  id: number
+  id: string
   status: DeliveryStatus
   paymentStatus: PaymentStatus
   packageDescription: string

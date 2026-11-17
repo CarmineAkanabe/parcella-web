@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="FLEET REGISTRY // CAPACITY"
+      eyebrow="Fleet Registry"
       title="Vehicles &amp; Availability Status"
       subtitle="Register bikes, motorbikes, cars, or vans and toggle your active dispatch vehicle."
     >

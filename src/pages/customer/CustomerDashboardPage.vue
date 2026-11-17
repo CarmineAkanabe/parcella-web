@@ -6,7 +6,7 @@ import { PageHeader, AppCard, StatusPill, EmptyState } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="CUSTOMER WORKSPACE // ESCROW DISPATCH"
+      eyebrow="Customer Workspace"
       title="Shipper Operations Overview"
       subtitle="Track active parcels, verify pickup/delivery codes, and monitor XAF escrow holds."
     >

@@ -50,7 +50,7 @@ const hasHeader = computed(() => {
         <div class="min-w-0">
           <div
             v-if="eyebrow"
-            class="text-caption font-mono text-uppercase text-medium-emphasis mb-1"
+            class="text-caption text-uppercase text-primary font-weight-semibold mb-1"
           >
             {{ eyebrow }}
           </div>

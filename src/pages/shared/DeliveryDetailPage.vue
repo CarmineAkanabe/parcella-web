@@ -11,7 +11,7 @@ const deliveryId = computed(() => String(route.params.id ?? '1001'))
 <template>
   <div>
     <PageHeader
-      eyebrow="DISPATCH RECORD // CUSTODY LEDGER"
+      eyebrow="Delivery Record"
       :title="`Delivery Waybill PCL-${deliveryId}`"
       subtitle="Real-time escrow state, 2-step custody verification codes, and spatial telemetry."
       back-to="/customer/deliveries"

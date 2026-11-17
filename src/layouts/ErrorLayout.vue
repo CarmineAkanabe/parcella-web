@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Sun, Moon } from '@lucide/vue'
 import { useThemeStore } from '@/shared/stores/theme'
 import { RouteTransition } from '@/components/common'
 
@@ -10,25 +9,24 @@ const themeStore = useThemeStore()
   <v-main class="error-layout d-flex flex-column justify-space-between">
     <div class="d-flex align-center justify-space-between px-6 py-4 error-header">
       <div class="d-flex align-center ga-3">
-        <v-avatar color="primary" variant="tonal" rounded="lg" size="36">
+        <v-avatar color="primary" variant="flat" rounded="lg" size="36">
           <v-icon icon="mdi-cube-send" size="20" />
         </v-avatar>
-        <span class="text-subtitle-2 font-weight-bold font-mono">
-          PARCELLA // TELEMETRY FAULT
-        </span>
+        <div>
+          <div class="text-subtitle-2 font-weight-bold">Parcella</div>
+          <div class="text-caption text-medium-emphasis">Escrow Delivery Platform</div>
+        </div>
       </div>
 
       <v-btn
         variant="tonal"
         color="secondary"
         size="small"
-        class="font-mono"
+        :prepend-icon="themeStore.isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
         aria-label="Toggle color theme"
         @click="themeStore.toggleTheme()"
       >
-        <Sun v-if="themeStore.isDark" :size="16" class="mr-2" />
-        <Moon v-else :size="16" class="mr-2" />
-        <span>{{ themeStore.isDark ? 'LIGHT' : 'DARK' }}</span>
+        {{ themeStore.isDark ? 'Light mode' : 'Dark mode' }}
       </v-btn>
     </div>
 
@@ -38,8 +36,8 @@ const themeStore = useThemeStore()
       </RouteTransition>
     </v-container>
 
-    <div class="px-6 py-4 text-center text-caption font-mono text-medium-emphasis error-footer">
-      SYS_DIAGNOSTIC // PARCELLA ROUTING ENGINE
+    <div class="px-6 py-4 text-center text-caption text-medium-emphasis error-footer">
+      Parcella Escrow Delivery Platform
     </div>
   </v-main>
 </template>
@@ -60,6 +58,6 @@ const themeStore = useThemeStore()
 }
 
 .max-w-error {
-  max-width: 680px;
+  max-width: 640px;
 }
 </style>

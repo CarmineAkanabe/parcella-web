@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="PROXIMITY MATCHING // OFFERS"
+      eyebrow="Proximity Matching"
       title="Delivery Requests Inbox"
       subtitle="Accept or decline time-bounded delivery assignments matched to your coordinates."
     >

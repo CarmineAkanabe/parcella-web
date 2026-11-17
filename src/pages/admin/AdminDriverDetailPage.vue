@@ -10,7 +10,7 @@ const driverId = computed(() => String(route.params.id ?? '1'))
 <template>
   <div>
     <PageHeader
-      eyebrow="COMPLIANCE DOSSIER // KYC INSPECTION"
+      eyebrow="Compliance Dossier"
       :title="`Driver Applicant DRV-${driverId}`"
       subtitle="Verify national identity card, courier license, and registered fleet vehicles."
       back-to="/admin/drivers"

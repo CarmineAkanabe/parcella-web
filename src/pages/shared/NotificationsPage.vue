@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="TELEMETRY STREAM // ALERTS"
+      eyebrow="Activity &amp; Alerts"
       title="System Notifications"
       subtitle="Escrow ledger transitions, courier proximity alerts, and dispute updates."
     >

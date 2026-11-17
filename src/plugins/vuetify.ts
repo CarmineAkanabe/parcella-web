@@ -1,22 +1,25 @@
 import '@mdi/font/css/materialdesignicons.css'
 import 'vuetify/styles'
 import { createVuetify, type ThemeDefinition } from 'vuetify'
+import * as components from 'vuetify/components'
+import * as directives from 'vuetify/directives'
 
 const lightTheme: ThemeDefinition = {
   dark: false,
   colors: {
     background: '#FAF8F5',
-    surface: '#F3EFEA',
+    surface: '#FFFFFF',
     'surface-bright': '#FFFFFF',
-    'surface-variant': '#E6E0D6',
-    'on-surface-variant': '#4A525D',
-    primary: '#D95D39',
-    'primary-darken-1': '#B84625',
+    'surface-variant': '#F3EFEA',
+    'on-surface': '#1F242A',
+    'on-surface-variant': '#5A646E',
+    primary: '#C54F2C',
+    'primary-darken-1': '#A43716',
     secondary: '#2C353D',
-    'secondary-darken-1': '#1B2228',
-    success: '#15803D',
+    'secondary-darken-1': '#171B21',
+    success: '#1E684D',
     warning: '#B45309',
-    error: '#B91C1C',
+    error: '#BA1A1A',
     info: '#0369A1',
   },
 }
@@ -28,6 +31,7 @@ const darkTheme: ThemeDefinition = {
     surface: '#171B21',
     'surface-bright': '#1F242D',
     'surface-variant': '#262C36',
+    'on-surface': '#F1F5F9',
     'on-surface-variant': '#94A3B8',
     primary: '#E07A2E',
     'primary-darken-1': '#C6631B',
@@ -41,6 +45,8 @@ const darkTheme: ThemeDefinition = {
 }
 
 export const vuetify = createVuetify({
+  components,
+  directives,
   theme: {
     defaultTheme: 'light',
     themes: {
@@ -61,16 +67,24 @@ export const vuetify = createVuetify({
       variant: 'outlined',
       density: 'comfortable',
       color: 'primary',
+      hideDetails: 'auto',
     },
     VSelect: {
       variant: 'outlined',
       density: 'comfortable',
       color: 'primary',
+      hideDetails: 'auto',
     },
     VTextarea: {
       variant: 'outlined',
       density: 'comfortable',
       color: 'primary',
+      hideDetails: 'auto',
+    },
+    VCheckbox: {
+      color: 'primary',
+      density: 'compact',
+      hideDetails: 'auto',
     },
     VChip: {
       rounded: 'md',

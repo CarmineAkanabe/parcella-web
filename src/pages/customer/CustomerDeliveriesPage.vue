@@ -5,7 +5,7 @@ import { PageHeader, AppCard, EmptyState, StatusPill } from '@/components/common
 <template>
   <div>
     <PageHeader
-      eyebrow="CUSTOMER LEDGER // WAYBILLS"
+      eyebrow="Customer Deliveries"
       title="My Deliveries"
       subtitle="Complete history of outbound and inbound parcels with escrow payment statuses."
     >

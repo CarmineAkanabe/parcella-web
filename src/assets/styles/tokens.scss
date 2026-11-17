@@ -54,6 +54,9 @@ $duration-slow: 280ms;
   --radius-xl: #{$radius-xl};
 
   // Surfaces & Borders (Warm Industrial Light Defaults)
+  --showcase-bg: rgb(23, 27, 33);
+  --showcase-fg: rgb(255, 255, 255);
+  --showcase-muted: rgba(255, 255, 255, 0.72);
   --border-subtle: rgba(44, 53, 61, 0.12);
   --border-strong: rgba(44, 53, 61, 0.22);
 

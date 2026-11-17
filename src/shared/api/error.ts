@@ -125,6 +125,19 @@ export function normalizeApiError(err: unknown): ApiError {
     })
   }
 
+  if (typeof err === 'object' && err !== null) {
+    const obj = err as ProblemDetail & Record<string, unknown>
+    if ('detail' in obj || 'errors' in obj || 'status' in obj || 'title' in obj) {
+      return new ApiError({
+        status: typeof obj.status === 'number' ? obj.status : 422,
+        title: typeof obj.title === 'string' ? obj.title : 'Validation Error',
+        detail: typeof obj.detail === 'string' ? obj.detail : 'Validation failed.',
+        type: typeof obj.type === 'string' ? obj.type : undefined,
+        errors: normalizeFieldErrors(obj.errors),
+      })
+    }
+  }
+
   return new ApiError({
     status: 0,
     title: 'Unknown Error',

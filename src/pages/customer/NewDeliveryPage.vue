@@ -6,7 +6,7 @@ import { PageHeader, AppCard, StatusPill } from '@/components/common'
 <template>
   <div>
     <PageHeader
-      eyebrow="DISPATCH WIZARD // ESCROW BOOKING"
+      eyebrow="Escrow Booking"
       title="New Delivery Request"
       subtitle="Specify pickup and destination coordinates, package size, and recipient contact."
       back-to="/customer/deliveries"
@@ -19,7 +19,7 @@ import { PageHeader, AppCard, StatusPill } from '@/components/common'
     <v-row class="mt-2">
       <v-col cols="12" md="8">
         <AppCard
-          eyebrow="STEP 1 // PACKAGE &amp; ROUTE"
+          eyebrow="Step 1 · Package &amp; Route"
           title="Waybill Specification"
           subtitle="Interactive Leaflet + Nominatim map picker activates in Slice F3."
         >

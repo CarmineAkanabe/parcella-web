@@ -14,6 +14,22 @@ export function useFormErrors<T extends z.ZodTypeAny>(schema?: T) {
     }
   }
 
+  function clearPrefix(prefix: string): void {
+    const dotPrefix = `${prefix}.`
+    const next: Record<string, string[]> = {}
+    let changed = false
+    for (const [key, val] of Object.entries(errors.value)) {
+      if (key === prefix || key.startsWith(dotPrefix)) {
+        changed = true
+      } else {
+        next[key] = val
+      }
+    }
+    if (changed) {
+      errors.value = next
+    }
+  }
+
   function clearAll(): void {
     errors.value = {}
     formError.value = null
@@ -53,13 +69,28 @@ export function useFormErrors<T extends z.ZodTypeAny>(schema?: T) {
     return errors.value[field]?.[0]
   }
 
+  function firstErrorForPrefix(prefix: string): string | undefined {
+    if (errors.value[prefix]?.[0]) {
+      return errors.value[prefix][0]
+    }
+    const dotPrefix = `${prefix}.`
+    for (const [key, messages] of Object.entries(errors.value)) {
+      if (key.startsWith(dotPrefix) && messages.length > 0) {
+        return messages[0]
+      }
+    }
+    return undefined
+  }
+
   return {
     errors,
     formError,
     validate,
     setServerErrors,
     firstError,
+    firstErrorForPrefix,
     clearField,
+    clearPrefix,
     clearAll,
   }
 }
