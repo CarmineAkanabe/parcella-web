@@ -39,7 +39,10 @@ export function setupRouterGuards(router: Router): void {
       authStore.role &&
       !to.meta.roles.includes(authStore.role)
     ) {
-      return authStore.homeRoute
+      return {
+        name: 'error-403',
+        query: { from: to.fullPath },
+      }
     }
 
     return true

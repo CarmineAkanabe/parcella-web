@@ -2,12 +2,12 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { AppCard, EmptyState, ErrorBanner, PageHeader, StatusPill } from '@/components/common'
 import LocationPicker from '@/components/complex/map/LocationPicker.vue'
+import ProfileOverviewSidebar from '@/components/complex/profile/ProfileOverviewSidebar.vue'
 import { getMeApi, updateProfileSchema, type UpdateProfilePayload } from '@/features/auth'
 import { useFormErrors } from '@/shared/composables/useFormErrors'
 import { useToast } from '@/shared/composables/useToast'
 import { useAuthStore } from '@/shared/stores/auth'
 import type { Location } from '@/shared/types'
-import { formatDateTime } from '@/shared/utils'
 
 const authStore = useAuthStore()
 const toast = useToast()
@@ -34,33 +34,8 @@ const {
 } = useFormErrors(updateProfileSchema)
 
 const user = computed(() => authStore.user)
-const driverSummary = computed(() => user.value?.driver ?? null)
 const isAdmin = computed(() => user.value?.role === 'ADMIN')
-const primaryStatus = computed(() => driverSummary.value?.verificationStatus ?? user.value?.role ?? 'CUSTOMER')
-
-const userInitials = computed(() => {
-  const name = user.value?.fullName?.trim()
-  if (!name) return 'PC'
-  const parts = name.split(/\s+/)
-  return `${parts[0]?.[0] ?? 'P'}${parts[1]?.[0] ?? ''}`.toUpperCase()
-})
-
-const formattedAccountId = computed(() => {
-  const id = user.value?.id
-  if (!id) return 'CMR-USER'
-  const rolePrefix = user.value?.role === 'DRIVER' ? 'DRV' : user.value?.role === 'ADMIN' ? 'ADM' : 'CST'
-  return `CMR-${rolePrefix}-${id.slice(0, 8).toUpperCase()}`
-})
-
-async function copyAccountId(): Promise<void> {
-  if (!user.value?.id) return
-  try {
-    await navigator.clipboard.writeText(user.value.id)
-    toast.info('Account ID copied to clipboard.')
-  } catch {
-    toast.info(user.value.id)
-  }
-}
+const primaryStatus = computed(() => user.value?.driver?.verificationStatus ?? user.value?.role ?? 'CUSTOMER')
 
 function syncFormFromUser(): void {
   const current = authStore.user
@@ -164,87 +139,9 @@ async function handleSave(): Promise<void> {
     </v-row>
 
     <v-row v-else-if="user" class="mt-2">
-      <!-- LEFT COLUMN (4 cols): Card 1 (Account Overview) & Card 2 (Driver Status) -->
-      <v-col cols="12" lg="4" class="d-flex flex-column ga-5">
-        <AppCard>
-          <div class="d-flex align-start justify-space-between mb-4">
-            <v-avatar size="68" rounded="lg" color="surface-variant" class="avatar-box">
-              <span class="text-h5 font-weight-bold text-primary">{{ userInitials }}</span>
-            </v-avatar>
-            <div class="d-flex flex-column align-end ga-1">
-              <StatusPill :status="user.role" size="x-small" />
-              <span class="text-caption font-mono text-medium-emphasis">Escrow Verified</span>
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <h2 class="text-h6 font-weight-bold">{{ user.fullName }}</h2>
-            <p class="text-body-2 text-medium-emphasis mb-0">{{ user.email }}</p>
-          </div>
-
-          <!-- Monospace Account ID Box with Copy Button (Matches Stitch Card 1) -->
-          <div class="id-readout-box pa-3 rounded-lg d-flex align-center justify-space-between mb-4">
-            <div class="overflow-hidden">
-              <span class="text-caption font-weight-bold text-uppercase text-medium-emphasis d-block">
-                Account Reference ID
-              </span>
-              <span class="font-mono text-body-2 font-weight-bold text-truncate d-block" :title="user.id">
-                {{ formattedAccountId }}
-              </span>
-            </div>
-            <v-btn icon="mdi-content-copy" variant="text" size="small" color="secondary" aria-label="Copy Account ID" @click="copyAccountId" />
-          </div>
-
-          <v-divider class="mb-3" />
-
-          <div class="d-flex flex-column ga-2 text-caption">
-            <div class="d-flex justify-space-between">
-              <span class="text-medium-emphasis">Member Since:</span>
-              <span class="font-weight-semibold">{{ formatDateTime(user.createdAt) }}</span>
-            </div>
-            <div class="d-flex justify-space-between">
-              <span class="text-medium-emphasis">Escrow Protection:</span>
-              <span class="font-mono text-success font-weight-bold">● 100% Active</span>
-            </div>
-          </div>
-        </AppCard>
-
-        <!-- Card 2: Driver Status & 2x2 Metrics Grid (Matches Stitch Card 2) -->
-        <AppCard v-if="driverSummary">
-          <div class="d-flex align-center justify-space-between mb-4">
-            <h3 class="text-subtitle-1 font-weight-bold">Dispatch Availability</h3>
-            <StatusPill :status="driverSummary.verificationStatus" size="x-small" />
-          </div>
-
-          <div class="availability-banner pa-3 rounded-lg d-flex align-center justify-space-between mb-4">
-            <div>
-              <div class="text-body-2 font-weight-bold">Current Dispatch Status</div>
-              <div class="text-caption text-medium-emphasis">Live standing on the Parcella ledger</div>
-            </div>
-            <StatusPill :status="driverSummary.availabilityStatus" size="small" />
-          </div>
-
-          <div class="text-caption font-weight-bold text-uppercase text-medium-emphasis mb-2">
-            Delivery Escrow Performance
-          </div>
-
-          <div class="metrics-grid">
-            <div class="metric-tile pa-3 rounded-lg">
-              <span class="text-caption text-medium-emphasis d-block">Courier Rating</span>
-              <div class="d-flex align-baseline ga-1 mt-1">
-                <span class="text-h6 font-weight-bold font-mono">{{ driverSummary.averageRating.toFixed(1) }}</span>
-                <span class="text-caption font-mono text-medium-emphasis">/ 5.0</span>
-              </div>
-            </div>
-            <div class="metric-tile pa-3 rounded-lg">
-              <span class="text-caption text-medium-emphasis d-block">Trust Score</span>
-              <div class="d-flex align-baseline ga-1 mt-1">
-                <span class="text-h6 font-weight-bold font-mono">{{ driverSummary.trustScore.toFixed(0) }}</span>
-                <span class="text-caption font-mono text-medium-emphasis">pts</span>
-              </div>
-            </div>
-          </div>
-        </AppCard>
+      <!-- LEFT COLUMN (4 cols): Account Overview & Driver Status -->
+      <v-col cols="12" lg="4">
+        <ProfileOverviewSidebar :user="user" />
       </v-col>
 
       <!-- RIGHT COLUMN (8 cols): Card 3 (Personal Info) & Card 4 (LocationPicker Hub) -->
@@ -252,7 +149,7 @@ async function handleSave(): Promise<void> {
         <v-form novalidate class="d-flex flex-column ga-5" @submit.prevent="handleSave">
           <ErrorBanner v-if="formError" title="Could not save profile changes" :detail="formError" :retryable="false" />
 
-          <!-- Card 3: Personal Information & Contacts (Matches Stitch Card 3) -->
+          <!-- Card 3: Personal Information & Contacts -->
           <AppCard
             title="Personal Information &amp; Contacts"
             subtitle="Updates reflect across active delivery handshakes and carrier manifest records."
@@ -329,7 +226,7 @@ async function handleSave(): Promise<void> {
             </div>
           </AppCard>
 
-          <!-- Card 4: Default Dispatch Hub & Map (Matches Stitch Card 4) -->
+          <!-- Card 4: Default Dispatch Hub & Map -->
           <AppCard
             title="Default Dispatch Hub &amp; Rendezvous Point"
             subtitle="Couriers within proximity receive priority alerts for incoming parcel escrows."
@@ -376,22 +273,3 @@ async function handleSave(): Promise<void> {
     </v-row>
   </div>
 </template>
-
-<style scoped>
-.avatar-box {
-  border: 2px solid var(--border-subtle);
-}
-
-.id-readout-box,
-.availability-banner,
-.metric-tile {
-  background-color: rgba(var(--v-theme-surface-variant), 0.55);
-  border: 1px solid var(--border-subtle);
-}
-
-.metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-</style>

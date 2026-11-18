@@ -1,4 +1,5 @@
 export { default as AppCard } from './AppCard.vue'
+export { default as AppLogo } from './AppLogo.vue'
 export { default as PageHeader } from './PageHeader.vue'
 export { default as EmptyState } from './EmptyState.vue'
 export { default as ErrorBanner } from './ErrorBanner.vue'

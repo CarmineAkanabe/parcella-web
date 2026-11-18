@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { AppCard, ErrorBanner } from '@/components/common'
+import AuthShowcaseSplit from '@/components/complex/auth/AuthShowcaseSplit.vue'
 import { loginSchema } from '@/features/auth'
 import { useFormErrors } from '@/shared/composables/useFormErrors'
 import { useToast } from '@/shared/composables/useToast'
@@ -71,7 +72,8 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <template>
-  <AppCard class="fill-height d-flex flex-column justify-space-between pa-2 pa-sm-4" :loading="isSubmitting">
+  <AuthShowcaseSplit>
+    <AppCard class="fill-height d-flex flex-column justify-space-between pa-2 pa-sm-4" :loading="isSubmitting">
     <div>
       <!-- Top Auth Switcher Tabs (Matches Stitch Header) -->
       <div class="d-flex flex-wrap align-center justify-space-between ga-2 pb-4 mb-5 auth-tabs-bar">
@@ -167,6 +169,7 @@ async function handleSubmit(): Promise<void> {
       </div>
     </div>
   </AppCard>
+  </AuthShowcaseSplit>
 </template>
 
 <style scoped>

@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import { useAuthStore } from '@/shared/stores/auth'
-import { StatusPill } from '@/components/common'
+import { StatusPill, AppLogo } from '@/components/common'
 import { getPrimaryNavForRole, SECONDARY_NAV_ITEMS } from './navConfig'
 
 const props = withDefaults(
@@ -40,13 +40,8 @@ const bottomBarItems = computed(() => primaryItems.value.slice(0, 4))
   >
     <div class="pa-4 d-flex align-center justify-space-between">
       <div class="d-flex align-center ga-3">
-        <v-avatar color="primary" variant="flat" rounded="lg" size="36">
-          <v-icon icon="mdi-cube-send" size="20" />
-        </v-avatar>
-        <div>
-          <div class="text-subtitle-2 font-weight-bold mb-1">Parcella</div>
-          <StatusPill :status="authStore.role ?? 'CUSTOMER'" size="x-small" />
-        </div>
+        <AppLogo size="sm" />
+        <StatusPill :status="authStore.role ?? 'CUSTOMER'" size="x-small" />
       </div>
       <v-btn
         icon="mdi-close"

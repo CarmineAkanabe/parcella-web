@@ -15,7 +15,21 @@ declare module 'vue-router' {
 export const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: { name: 'login' },
+    name: 'landing',
+    component: () => import('@/pages/shared/LandingPage.vue'),
+    meta: {
+      layout: 'public',
+      title: 'Escrow Delivery Platform Cameroon',
+    },
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: () => import('@/pages/shared/AboutPage.vue'),
+    meta: {
+      layout: 'public',
+      title: 'About & Platform Provisions',
+    },
   },
   {
     path: '/login',
@@ -208,6 +222,24 @@ export const routes: RouteRecordRaw[] = [
       layout: 'auth',
       requiresAuth: true,
       title: 'System Notifications',
+    },
+  },
+  {
+    path: '/error/403',
+    name: 'error-403',
+    component: () => import('@/pages/shared/ForbiddenPage.vue'),
+    meta: {
+      layout: 'error',
+      title: '403 — Access Restricted',
+    },
+  },
+  {
+    path: '/error/500',
+    name: 'error-500',
+    component: () => import('@/pages/shared/ServerErrorPage.vue'),
+    meta: {
+      layout: 'error',
+      title: '500 — Service Interruption',
     },
   },
   {

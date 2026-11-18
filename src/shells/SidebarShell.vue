@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import { useAuthStore } from '@/shared/stores/auth'
-import { StatusPill } from '@/components/common'
+import { StatusPill, AppLogo } from '@/components/common'
 import { getPrimaryNavForRole, SECONDARY_NAV_ITEMS } from './navConfig'
 
 const { mdAndUp } = useDisplay()
@@ -21,19 +21,9 @@ const driverSummary = computed(() => authStore.user?.driver ?? null)
   >
     <!-- Top Brand + Corridor Badge (Matches Stitch Screen 2) -->
     <div class="pa-4 sidebar-brand">
-      <div class="d-flex align-center ga-3 mb-3">
-        <v-avatar color="primary" variant="flat" rounded="lg" size="36" class="flex-shrink-0">
-          <v-icon icon="mdi-package-variant-closed" size="20" />
-        </v-avatar>
-        <div class="min-w-0">
-          <div class="text-subtitle-1 font-weight-bold text-primary lh-tight">
-            Parcella
-          </div>
-          <div class="text-caption text-medium-emphasis whitespace-nowrap">
-            Escrow Delivery Platform
-          </div>
-        </div>
-      </div>
+      <RouterLink to="/" class="text-decoration-none d-inline-flex mb-3">
+        <AppLogo size="md" subtitle="Escrow Delivery Platform" />
+      </RouterLink>
 
       <div class="corridor-badge px-2.5 py-1 rounded d-inline-flex align-center ga-2 font-mono text-caption whitespace-nowrap">
         <span class="corridor-dot flex-shrink-0" />
