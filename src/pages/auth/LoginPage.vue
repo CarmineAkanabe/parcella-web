@@ -112,7 +112,7 @@ async function handleSubmit(): Promise<void> {
             <v-text-field
               v-model="email"
               type="email"
-              placeholder="marcelle@example.cm"
+              placeholder="alice.ngong@example.cm"
               prepend-inner-icon="mdi-email-outline"
               autocomplete="email"
               :disabled="isSubmitting"

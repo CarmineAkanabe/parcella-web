@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { AppCard, StatusPill } from '@/components/common'
+import { computed, ref } from 'vue'
+import { AppCard, StatusPill, UserAvatar } from '@/components/common'
+import AvatarUploadDialog from './AvatarUploadDialog.vue'
 import { useToast } from '@/shared/composables/useToast'
+import { useAuthStore } from '@/shared/stores/auth'
 import type { UserResponse } from '@/shared/types'
 import { formatDateTime } from '@/shared/utils'
 
@@ -10,16 +12,13 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const authStore = useAuthStore()
 const toast = useToast()
 
-const driverSummary = computed(() => props.user.driver)
+const showAvatarDialog = ref(false)
+const isRemovingAvatar = ref(false)
 
-const userInitials = computed(() => {
-  const name = props.user.fullName.trim()
-  if (!name) return 'PC'
-  const parts = name.split(/\s+/)
-  return `${parts[0]?.[0] ?? 'P'}${parts[1]?.[0] ?? ''}`.toUpperCase()
-})
+const driverSummary = computed(() => props.user.driver)
 
 const formattedAccountId = computed(() => {
   const id = props.user.id
@@ -35,19 +34,69 @@ async function copyAccountId(): Promise<void> {
     toast.info(props.user.id)
   }
 }
+
+async function handleRemoveAvatar(): Promise<void> {
+  isRemovingAvatar.value = true
+  try {
+    await authStore.deleteAvatar()
+    toast.success('Profile avatar removed.')
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Failed to remove avatar'
+    toast.error(message)
+  } finally {
+    isRemovingAvatar.value = false
+  }
+}
 </script>
 
 <template>
   <div class="d-flex flex-column ga-5">
     <AppCard>
       <div class="d-flex align-start justify-space-between mb-4">
-        <v-avatar size="68" rounded="lg" color="surface-variant" class="avatar-box">
-          <span class="text-h5 font-weight-bold text-primary">{{ userInitials }}</span>
-        </v-avatar>
+        <div class="position-relative avatar-container">
+          <UserAvatar
+            :avatar-url="user.avatarUrl"
+            :full-name="user.fullName"
+            :size="72"
+            rounded="lg"
+            class="avatar-box"
+          />
+          <v-btn
+            icon="mdi-camera"
+            size="x-small"
+            color="primary"
+            class="avatar-camera-btn"
+            aria-label="Change profile photo"
+            @click="showAvatarDialog = true"
+          />
+        </div>
         <div class="d-flex flex-column align-end ga-1">
           <StatusPill :status="user.role" size="x-small" />
           <span class="text-caption font-mono text-medium-emphasis">Escrow Verified</span>
         </div>
+      </div>
+
+      <div class="d-flex align-center ga-2 mb-4">
+        <v-btn
+          size="x-small"
+          variant="tonal"
+          color="primary"
+          prepend-icon="mdi-camera"
+          @click="showAvatarDialog = true"
+        >
+          {{ user.avatarUrl ? 'Change Photo' : 'Upload Photo' }}
+        </v-btn>
+        <v-btn
+          v-if="user.avatarUrl"
+          size="x-small"
+          variant="text"
+          color="error"
+          :loading="isRemovingAvatar"
+          :disabled="isRemovingAvatar"
+          @click="handleRemoveAvatar"
+        >
+          Remove
+        </v-btn>
       </div>
 
       <div class="mb-4">
@@ -55,7 +104,7 @@ async function copyAccountId(): Promise<void> {
         <p class="text-body-2 text-medium-emphasis mb-0">{{ user.email }}</p>
       </div>
 
-      <!-- Monospace Account ID Box with Copy Button (Matches Stitch Card 1) -->
+      <!-- Monospace Account ID Box with Copy Button -->
       <div class="id-readout-box pa-3 rounded-lg d-flex align-center justify-space-between mb-4">
         <div class="overflow-hidden">
           <span class="text-caption font-weight-bold text-uppercase text-medium-emphasis d-block">
@@ -65,7 +114,14 @@ async function copyAccountId(): Promise<void> {
             {{ formattedAccountId }}
           </span>
         </div>
-        <v-btn icon="mdi-content-copy" variant="text" size="small" color="secondary" aria-label="Copy Account ID" @click="copyAccountId" />
+        <v-btn
+          icon="mdi-content-copy"
+          variant="text"
+          size="small"
+          color="secondary"
+          aria-label="Copy Account ID"
+          @click="copyAccountId"
+        />
       </div>
 
       <v-divider class="mb-3" />
@@ -82,16 +138,37 @@ async function copyAccountId(): Promise<void> {
       </div>
     </AppCard>
 
-    <!-- Card 2: Driver Status & 2x2 Metrics Grid (Matches Stitch Card 2) -->
+    <!-- Card 2: Driver Status & Standing -->
     <AppCard v-if="driverSummary">
       <div class="d-flex align-center justify-space-between mb-4">
-        <h3 class="text-subtitle-1 font-weight-bold">Dispatch Availability</h3>
+        <h3 class="text-subtitle-1 font-weight-bold">Courier Standing</h3>
         <StatusPill :status="driverSummary.verificationStatus" size="x-small" />
       </div>
 
+      <!-- If rejected, display verification note and link to fix -->
+      <v-alert
+        v-if="driverSummary.verificationStatus === 'REJECTED' && driverSummary.verificationNote"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="mb-4 text-caption"
+      >
+        <div class="font-weight-bold mb-1">Application Notice</div>
+        <div>{{ driverSummary.verificationNote }}</div>
+        <v-btn
+          size="x-small"
+          variant="text"
+          color="error"
+          class="px-0 mt-2 font-weight-bold"
+          to="/driver/vehicles"
+        >
+          Update Documents &rarr;
+        </v-btn>
+      </v-alert>
+
       <div class="availability-banner pa-3 rounded-lg d-flex align-center justify-space-between mb-4">
         <div>
-          <div class="text-body-2 font-weight-bold">Current Dispatch Status</div>
+          <div class="text-body-2 font-weight-bold">Dispatch Status</div>
           <div class="text-caption text-medium-emphasis">Live standing on the Parcella ledger</div>
         </div>
         <StatusPill :status="driverSummary.availabilityStatus" size="small" />
@@ -118,12 +195,28 @@ async function copyAccountId(): Promise<void> {
         </div>
       </div>
     </AppCard>
+
+    <!-- Avatar Upload Dialog -->
+    <AvatarUploadDialog
+      v-model="showAvatarDialog"
+    />
   </div>
 </template>
 
 <style scoped>
+.avatar-container {
+  display: inline-block;
+}
+
 .avatar-box {
   border: 2px solid var(--border-subtle);
+}
+
+.avatar-camera-btn {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .id-readout-box,

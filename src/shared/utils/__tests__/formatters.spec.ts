@@ -1,10 +1,13 @@
 import { describe, expect, it } from 'vitest'
 import {
   CAMEROON_PHONE_REGEX,
+  VEHICLE_PLATE_REGEX,
   cameroonPhoneSchema,
   formatDateTime,
   formatDistance,
   formatXaf,
+  resolveApiAssetUrl,
+  validateImageFile,
 } from '../formatters'
 
 describe('shared/utils/formatters', () => {
@@ -78,6 +81,70 @@ describe('shared/utils/formatters', () => {
 
       const withPlus = cameroonPhoneSchema.safeParse('+237670123456')
       expect(withPlus.success).toBe(false)
+    })
+  })
+
+  describe('VEHICLE_PLATE_REGEX', () => {
+    it('matches valid plates with letters, digits, spaces, and hyphens (4-20 chars)', () => {
+      expect(VEHICLE_PLATE_REGEX.test('LT 824 EF')).toBe(true)
+      expect(VEHICLE_PLATE_REGEX.test('CE-410-AB')).toBe(true)
+      expect(VEHICLE_PLATE_REGEX.test('ABCD')).toBe(true)
+      expect(VEHICLE_PLATE_REGEX.test('A'.repeat(20))).toBe(true)
+    })
+
+    it('rejects plates with invalid characters or out-of-range length', () => {
+      expect(VEHICLE_PLATE_REGEX.test('ABC')).toBe(false)
+      expect(VEHICLE_PLATE_REGEX.test('A'.repeat(21))).toBe(false)
+      expect(VEHICLE_PLATE_REGEX.test('LT.824.EF')).toBe(false)
+      expect(VEHICLE_PLATE_REGEX.test('LT#824$EF')).toBe(false)
+    })
+  })
+
+  describe('resolveApiAssetUrl', () => {
+    it('returns null for null, undefined, or empty path', () => {
+      expect(resolveApiAssetUrl(null)).toBeNull()
+      expect(resolveApiAssetUrl(undefined)).toBeNull()
+      expect(resolveApiAssetUrl('')).toBeNull()
+      expect(resolveApiAssetUrl('   ')).toBeNull()
+    })
+
+    it('returns full URLs as is', () => {
+      expect(resolveApiAssetUrl('http://example.com/avatar.jpg')).toBe('http://example.com/avatar.jpg')
+      expect(resolveApiAssetUrl('https://example.com/avatar.jpg')).toBe('https://example.com/avatar.jpg')
+      expect(resolveApiAssetUrl('blob:http://localhost:5173/1234')).toBe('blob:http://localhost:5173/1234')
+      expect(resolveApiAssetUrl('data:image/png;base64,abc')).toBe('data:image/png;base64,abc')
+    })
+
+    it('resolves relative paths against API base URL and preserves query string', () => {
+      const resolved = resolveApiAssetUrl('/users/123/avatar?v=abc')
+      expect(resolved).toMatch(/\/users\/123\/avatar\?v=abc$/)
+      expect(resolved).toMatch(/^https?:\/\//)
+
+      const resolvedNoSlash = resolveApiAssetUrl('users/123/avatar?v=abc')
+      expect(resolvedNoSlash).toBe(resolved)
+    })
+  })
+
+  describe('validateImageFile', () => {
+    it('accepts JPEG and PNG files within limit', () => {
+      const jpeg = new File(['mock content'], 'test.jpg', { type: 'image/jpeg' })
+      expect(validateImageFile(jpeg, 1024 * 1024)).toBeNull()
+
+      const png = new File(['mock content'], 'test.png', { type: 'image/png' })
+      expect(validateImageFile(png, 1024 * 1024)).toBeNull()
+    })
+
+    it('rejects unsupported file formats', () => {
+      const webp = new File(['mock content'], 'test.webp', { type: 'image/webp' })
+      expect(validateImageFile(webp, 1024 * 1024)).toContain('Only JPEG and PNG')
+
+      const pdf = new File(['mock content'], 'test.pdf', { type: 'application/pdf' })
+      expect(validateImageFile(pdf, 1024 * 1024)).toContain('Only JPEG and PNG')
+    })
+
+    it('rejects files exceeding max byte size', () => {
+      const largeFile = new File([new Uint8Array(2000)], 'test.jpg', { type: 'image/jpeg' })
+      expect(validateImageFile(largeFile, 1000)).toContain('must not exceed')
     })
   })
 })

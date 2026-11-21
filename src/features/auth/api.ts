@@ -34,3 +34,22 @@ export async function updateMeApi(payload: UpdateProfilePayload): Promise<UserRe
   })
   return response.data
 }
+
+export async function uploadAvatarApi(file: File): Promise<UserResponse> {
+  const formData = new FormData()
+  formData.append('file', file)
+  const response = await apiClient.post<UserResponse>('/me/avatar', formData, {
+    auth: 'user',
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  })
+  return response.data
+}
+
+export async function deleteAvatarApi(): Promise<UserResponse> {
+  const response = await apiClient.delete<UserResponse>('/me/avatar', {
+    auth: 'user',
+  })
+  return response.data
+}

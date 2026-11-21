@@ -49,6 +49,7 @@ export interface DriverSummary {
   availabilityStatus: AvailabilityStatus
   averageRating: number
   trustScore: number
+  verificationNote: string | null
 }
 
 export interface UserResponse {
@@ -56,11 +57,17 @@ export interface UserResponse {
   role: Role
   fullName: string
   email: string
-  paymentPhoneNumber: string
-  preferredContactNumber: string
+  avatarUrl: string | null
+  paymentPhoneNumber: string | null
+  preferredContactNumber: string | null
   registeredLocation: Location | null
   createdAt: string
   driver: DriverSummary | null
+}
+
+export interface AdminDriverResponse {
+  user: UserResponse
+  licenseImageUrl: string | null
 }
 
 export interface Vehicle {

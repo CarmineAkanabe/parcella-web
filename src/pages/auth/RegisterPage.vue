@@ -83,17 +83,12 @@ function handleLocationUpdate(loc: Location): void {
 
 async function handleSubmit(): Promise<void> {
   const payload = { ...getStep1Payload(), registeredLocation: registeredLocation.value }
-
   if (!validateFull(payload) || !registeredLocation.value) {
     if (!registeredLocation.value) {
-      errors.value = {
-        ...errors.value,
-        'registeredLocation.address': ['Click the map or search an address to pin your default location'],
-      }
+      errors.value = { ...errors.value, 'registeredLocation.address': ['Click the map or search an address to pin your default location'] }
     }
     return
   }
-
   isSubmitting.value = true
   try {
     await authStore.register({ ...getStep1Payload(), registeredLocation: registeredLocation.value })
@@ -124,34 +119,17 @@ async function handleSubmit(): Promise<void> {
         <!-- Top Auth Switcher Tabs + Step Pill (Matches Stitch Screen 1) -->
         <div class="d-flex flex-wrap align-center justify-space-between ga-2 pb-4 mb-4 auth-tabs-bar">
           <div class="d-flex align-center ga-6">
-            <span class="auth-tab auth-tab--active text-subtitle-1 font-weight-bold">
-              Create an Account
-            </span>
-            <RouterLink to="/login" class="auth-tab text-subtitle-1 font-weight-semibold text-decoration-none">
-              Sign In
-            </RouterLink>
+            <span class="auth-tab auth-tab--active text-subtitle-1 font-weight-bold">Create an Account</span>
+            <RouterLink to="/login" class="auth-tab text-subtitle-1 font-weight-semibold text-decoration-none">Sign In</RouterLink>
           </div>
-
           <v-chip size="small" variant="outlined" class="font-mono text-caption" @click="step = 1">
             {{ step === 1 ? 'Step 1 of 2: Account Details' : 'Step 2 of 2: Default Hub' }}
           </v-chip>
         </div>
 
-        <v-progress-linear
-          :model-value="step === 1 ? 50 : 100"
-          color="primary"
-          height="4"
-          rounded
-          class="mb-5"
-        />
+        <v-progress-linear :model-value="step === 1 ? 50 : 100" color="primary" height="4" rounded class="mb-5" />
 
-        <ErrorBanner
-          v-if="formError"
-          title="Registration could not be completed"
-          :detail="formError"
-          :retryable="false"
-          class="mb-4"
-        />
+        <ErrorBanner v-if="formError" title="Registration could not be completed" :detail="formError" :retryable="false" class="mb-4" />
 
         <!-- STEP 1: Role, Identity, and Mobile Money Numbers -->
         <v-form v-if="step === 1" novalidate @submit.prevent="handleNextStep">
@@ -163,7 +141,7 @@ async function handleSubmit(): Promise<void> {
                 <label class="field-label">Full Legal Name</label>
                 <v-text-field
                   v-model="fullName"
-                  placeholder="Marcelle Manga"
+                  placeholder="Alice Ngong"
                   prepend-inner-icon="mdi-account-outline"
                   autocomplete="name"
                   :error="Boolean(firstError('fullName'))"
@@ -176,7 +154,7 @@ async function handleSubmit(): Promise<void> {
                 <v-text-field
                   v-model="email"
                   type="email"
-                  placeholder="marcelle@example.cm"
+                  placeholder="alice.ngong@example.cm"
                   prepend-inner-icon="mdi-email-outline"
                   autocomplete="email"
                   :error="Boolean(firstError('email'))"
@@ -189,9 +167,7 @@ async function handleSubmit(): Promise<void> {
             <div>
               <div class="d-flex align-center justify-space-between mb-1">
                 <label class="field-label mb-0">Phone / Mobile Money Number</label>
-                <span class="text-caption font-mono text-success font-weight-semibold">
-                  ● Cameroon (+237)
-                </span>
+                <span class="text-caption font-mono text-success font-weight-semibold">● Cameroon (+237)</span>
               </div>
               <v-text-field
                 v-model="paymentPhoneNumber"
@@ -207,10 +183,7 @@ async function handleSubmit(): Promise<void> {
               </span>
             </div>
 
-            <v-checkbox
-              v-model="syncContactPhone"
-              label="Use this phone number to receive 6-digit SMS delivery handshake codes."
-            />
+            <v-checkbox v-model="syncContactPhone" label="Use this phone number to receive 6-digit SMS delivery handshake codes." />
 
             <div v-if="!syncContactPhone">
               <label class="field-label">Preferred Contact Number</label>
@@ -246,9 +219,7 @@ async function handleSubmit(): Promise<void> {
                 <v-icon icon="mdi-map-marker-radius-outline" color="primary" size="20" />
                 <div>
                   <div class="text-caption font-weight-bold">Next Step: Default Hub / Landmark</div>
-                  <div class="text-caption text-medium-emphasis">
-                    Pin your Douala or Yaoundé neighborhood on the interactive map
-                  </div>
+                  <div class="text-caption text-medium-emphasis">Pin your Douala or Yaoundé neighborhood on the interactive map</div>
                 </div>
               </div>
               <span class="font-mono text-caption text-medium-emphasis d-none d-sm-inline">Step 2/2</span>

@@ -5,7 +5,7 @@ import { useDisplay } from 'vuetify'
 import { useThemeStore } from '@/shared/stores/theme'
 import { useAuthStore } from '@/shared/stores/auth'
 import { useToast } from '@/shared/composables/useToast'
-import { StatusPill } from '@/components/common'
+import { StatusPill, UserAvatar } from '@/components/common'
 
 const emit = defineEmits<{
   'toggle-mobile': []
@@ -23,15 +23,6 @@ const pageTitle = computed(() => {
 })
 
 const activeRole = computed(() => authStore.role ?? 'CUSTOMER')
-
-const userInitials = computed(() => {
-  const fullName = authStore.user?.fullName?.trim()
-  if (!fullName) return 'PC'
-  const parts = fullName.split(/\s+/)
-  const first = parts[0]?.[0] ?? 'P'
-  const second = parts[1]?.[0] ?? ''
-  return `${first}${second}`.toUpperCase()
-})
 
 const driverSummary = computed(() => authStore.user?.driver ?? null)
 
@@ -120,11 +111,13 @@ async function handleLogout(): Promise<void> {
               class="user-menu-trigger d-flex align-center ga-2 px-2 py-1 rounded-lg flex-shrink-0"
               aria-label="Account menu"
             >
-              <v-avatar size="32" color="primary" variant="flat" class="flex-shrink-0">
-                <span class="text-caption font-weight-bold">
-                  {{ userInitials }}
-                </span>
-              </v-avatar>
+              <UserAvatar
+                :avatar-url="authStore.user?.avatarUrl"
+                :full-name="authStore.user?.fullName"
+                :size="32"
+                rounded="lg"
+                class="flex-shrink-0"
+              />
               <div class="d-none d-sm-flex flex-column text-left">
                 <div class="d-flex align-center ga-1">
                   <span class="text-caption font-weight-bold text-high-emphasis text-truncate max-w-name">

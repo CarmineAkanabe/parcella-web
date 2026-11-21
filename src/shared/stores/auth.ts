@@ -2,10 +2,12 @@ import { defineStore } from 'pinia'
 import { TOKEN_STORAGE_KEY } from '../api'
 import type { Role, UserResponse } from '../types'
 import {
+  deleteAvatarApi,
   getMeApi,
   loginApi,
   registerApi,
   updateMeApi,
+  uploadAvatarApi,
   type LoginPayload,
   type LoginResponse,
   type RegisterPayload,
@@ -109,6 +111,28 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true
       try {
         const updated = await updateMeApi(payload)
+        this.user = updated
+        return updated
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async uploadAvatar(file: File): Promise<UserResponse> {
+      this.isLoading = true
+      try {
+        const updated = await uploadAvatarApi(file)
+        this.user = updated
+        return updated
+      } finally {
+        this.isLoading = false
+      }
+    },
+
+    async deleteAvatar(): Promise<UserResponse> {
+      this.isLoading = true
+      try {
+        const updated = await deleteAvatarApi()
         this.user = updated
         return updated
       } finally {

@@ -51,6 +51,49 @@ export function formatDistance(meters: number): string {
 
 export const CAMEROON_PHONE_REGEX = /^237\d{9}$/
 
+export const VEHICLE_PLATE_REGEX = /^[A-Za-z0-9 -]{4,20}$/
+
 export const cameroonPhoneSchema = z
   .string()
   .regex(CAMEROON_PHONE_REGEX, 'Phone number must start with 237 followed by 9 digits')
+
+/**
+ * Resolves a relative API asset path (such as /users/{id}/avatar?v=...) into
+ * a full URL against the configured VITE_API_BASE_URL.
+ */
+export function resolveApiAssetUrl(relativePath: string | null | undefined): string | null {
+  if (!relativePath || !relativePath.trim()) {
+    return null
+  }
+  const cleanPath = relativePath.trim()
+  if (
+    cleanPath.startsWith('http://') ||
+    cleanPath.startsWith('https://') ||
+    cleanPath.startsWith('blob:') ||
+    cleanPath.startsWith('data:')
+  ) {
+    return cleanPath
+  }
+  const baseUrl = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api/v1').replace(/\/+$/, '')
+  const normalizedPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`
+  return `${baseUrl}${normalizedPath}`
+}
+
+/**
+ * Validates that an uploaded file is a supported image (JPEG/PNG) and within byte limit.
+ * Returns an error message string if invalid, or null if valid.
+ */
+export function validateImageFile(file: File, maxBytes: number): string | null {
+  if (!file) {
+    return 'Please select an image file.'
+  }
+  const validTypes = ['image/jpeg', 'image/png']
+  if (!validTypes.includes(file.type)) {
+    return 'Only JPEG and PNG images are supported.'
+  }
+  if (file.size > maxBytes) {
+    const maxMb = (maxBytes / (1024 * 1024)).toFixed(0)
+    return `Image file size must not exceed ${maxMb} MB.`
+  }
+  return null
+}

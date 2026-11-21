@@ -41,8 +41,8 @@ function syncFormFromUser(): void {
   const current = authStore.user
   if (!current) return
   fullName.value = current.fullName
-  paymentPhoneNumber.value = current.paymentPhoneNumber
-  preferredContactNumber.value = current.preferredContactNumber
+  paymentPhoneNumber.value = current.paymentPhoneNumber ?? ''
+  preferredContactNumber.value = current.preferredContactNumber ?? ''
   registeredLocation.value = current.registeredLocation ? { ...current.registeredLocation } : null
   showLocationEditorForAdmin.value = Boolean(current.registeredLocation)
   clearAll()
